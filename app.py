@@ -1,42 +1,21 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2867
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+import streamlit as st
+import pandas as pd
+import google.generativeai as genai
+from serpapi import GoogleSearch
 
-\f0\fs24 \cf0 import streamlit as st\
-import pandas as pd\
-import google.generativeai as genai\
-from serpapi import GoogleSearch\
-\
-# 1. Connect the app to your "Secret Keys"\
-gemini_key = st.secrets["GEMINI_API_KEY"]\
-serp_key = st.secrets["SERPAPI_KEY"]\
-\
-# 2. Tell Gemini how to behave\
-genai.configure(api_key=gemini_api)\
-model = genai.GenerativeModel('gemini-1.5-flash')\
-\
-st.title("\uc0\u55356 \u57137  Nilo Health Finder")\
-st.write("Upload your list, and I'll find the best people to talk to!")\
-\
-# 3. The Upload Button\
-uploaded_file = st.file_uploader("Choose a CSV file", type="csv")\
-\
-if uploaded_file is not None:\
-    df = pd.read_csv(uploaded_file)\
-    st.write("I found your leads! Click the button below to start.")\
-    \
-    if st.button("Find the Best Leads"):\
-        # This part does the work for each row in your sheet\
-        results = []\
-        for index, row in df.iterrows():\
-            # Simple message for the AI\
-            info = f"Is \{row['Title']\} at \{row['Company']\} a good person to talk to about mental health for employees? Say Tier 1 if yes, Tier 3 if no."\
-            response = model.generate_content(info)\
-            results.append(response.text)\
-        \
-        df['AI_Advice'] = results\
-        st.dataframe(df)\
-        st.success("All done! You can download the list now.")}
+st.title("🌱 Nilo Health Finder")
+
+# This part checks if your keys are ready
+if "GEMINI_API_KEY" not in st.secrets:
+    st.error("Missing Gemini Key! Go to Settings > Secrets to add it.")
+else:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+    st.success("Gemini is ready!")
+
+uploaded_file = st.file_uploader("Upload your leads", type="csv")
+
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)
+    st.write("Found your leads!")
+    if st.button("Start AI Analysis"):
+        st.write("Robot is thinking...")
